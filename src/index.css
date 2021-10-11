@@ -1,17 +1,12 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  --main-color: #FF476D;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
 /* width */
 ::-webkit-scrollbar {
   width: 3px;
@@ -43,7 +38,6 @@ code {
 }
 
 .page {
-  background: #ccc;
   width: 100%;
   min-height: 100vh;
   text-align: center;
@@ -54,7 +48,6 @@ code {
   bottom: 0;
   right: 0;
   width: 400px;
-  height: 80vh;
   background: white;
   margin: 10px;
   box-shadow: 0px 0px 5px 6px rgba(0,0,0,0.19);
@@ -69,12 +62,48 @@ border-radius: 10px;
   padding: 10px;
 border-top-left-radius: 10px;
 border-top-right-radius: 10px;
-
+position: relative;
  
+}
+
+.close-icon {
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  border-radius: 50%;
+  background-color: var(--main-color);
+  color: white;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .4s;
+}
+
+.show {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  font-size: 26px;
+  font-weight: bold;
+  border-radius: 50%;
+  background-color: white;
+  color: var(--main-color);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .4s;
+
 }
 @media (max-width:750px){
   .chat-container {
     width: 100%;
+    margin: 0;
   }
 }
 
@@ -137,7 +166,7 @@ border-top-right-radius: 10px;
 .bot-message .message-body {
   background: #eaeaea;
   text-align: left;
-  margin: 10px;
+  margin: 20px 10px;
   width: fit-content;
   padding: 1px 8px;
   border-radius: 7px;
@@ -184,6 +213,22 @@ button.actions {
 
 }
 
+button.secondary {
+  padding: 5px 17px;
+  border-radius: 20px;
+  outline: none;
+  cursor: pointer;
+  margin: 4px;
+  color: #FF476D;
+  background: white;
+  font-weight: 600;
+  border: 1px solid #FF476D;
+  cursor: pointer;
+}
+button.secondary.active {
+  background: #FF476D;
+  color: white;
+}
 
 .complete-widget {
   border-radius: 5px;
@@ -209,4 +254,143 @@ button.actions {
 .mapWidget {
   width: 90%;
   margin: 15px auto;
+}
+
+
+*{
+  box-sizing: border-box;
+  font-fmaily: sans-serif;
+}
+body{
+  height: 100vh;
+  font-family: sans-serif;
+  background: linear-gradient(to right, #FF476D, #FC766B);
+}
+.login{
+  width: 350px;
+  height: 300px;
+  background: rgb(235, 235, 235);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all .4s;
+  border: 5px solid transparent;
+  border-radius: 10px;
+}
+form.loginForm{
+  width: 350px;
+  height: 450px;
+  margin: 40px;
+  padding: 10px;
+}
+  .one{
+  width: 250px;
+  height: 35px;
+  background: white;
+  margin-bottom: 10px;
+  border: 2px solid transparent;
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+    border-radius: 10px;
+}
+  .two{
+    width: 250px;
+    height: 35px;
+    background: white;
+    margin-bottom: 20px;
+    border: 5px solid transparent;
+    outline: none;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+    tansition: all .4s
+}
+
+.btn{
+  width: 250px;
+  height: 35px;
+  background: #FF476D;
+  outline: none;
+  border: 5px solid transparent;
+  border-radius: 10px;
+  transition: all .4s;
+}
+h1{
+  display:flex;
+  justify-content: center;
+  margin-top: 5px;
+  color: #FF476D;
+  font-weight: bold;
+}
+.sup{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+   margin-top: 120px;
+   color: #656565;
+   font-weight: bold;
+     
+}
+a{
+  text-decoration: none;
+  color: #FF467D;
+}
+.one:focus{
+  background: rgb(194, 194, 194);  
+}
+.two:focus{
+  background: rgb(194, 194, 194);
+}
+.btn:focus{
+  background: var(--main-color);
+}
+
+
+
+
+/* This class is applied to the containing div <div class="nav"> and is used to set the background color and height of the navbar */
+.nav {
+  background: #000;
+  height: 60px; /* set same as height & line-height below */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* This rule centers the nav items verticaly in the bar with the height and line height properties. Spacing between the nav items is controlled by setting right and left padding.  */
+.nav li {
+  display: inline-block;
+  list-style: none;
+  height: 60px; /* should be the same as line-height */
+  line-height: 60px; /* should be the same as height */
+  padding: 0 40px; /* "0" sets top and bottom padding to none */
+}
+
+/* :hover allows you change the background color of the nav items when you mouse over them. Play around with the transition value to change the speed of the hover transition. */
+.nav li:hover {
+  background: var(--main-color);
+  transition: background .3s;
+}
+
+/* This rule is applied to the link <a> tag. It lets you turn off the link underline and set the link text color. */
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.welcome-message {
+  padding: 7px;
+  font-size: 18px;
+  color: var(--main-color);
+}
+.widget-title {
+  padding: 7px;
+  font-size: 18px;
 }

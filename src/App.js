@@ -3,23 +3,38 @@ import { io } from "socket.io-client";
 import moment from 'moment'
 import ReactStars from "react-rating-stars-component";
 import GoogleMapReact from 'google-map-react';
+import Header from "./Header";
+import { withRouter } from "react-router";
+
 class App extends Component {
   state = {
     isLoggedIn: false,
     author: "",
     socket: null,
     inputValue: "",
-    messages: [],
+    messages: [{
+         command:{
+           type:"welcome",
+           data:"welcome"
+         },
+      "type":"command"
+    }],
     emitEventType: "message",
+    visibility:80
   };
   componentDidMount() {
-    const author = localStorage.getItem("user");
+    // check if user logged in
+    const author = localStorage.getItem("username");
     if (author !== null) {
       this.setState({ author });
       this.initSocket();
+    }else {
+      this.props.history.push('/login')
     }
   }
 
+
+  // emit messages to server
   sendMessage = (e) => {
     e.preventDefault();
 
@@ -49,18 +64,23 @@ class App extends Component {
     }
   };
 
+
+  // declare socket server
   initSocket = () => {
     const socket = io("https://demo-chat-server.on.ag/");
     this.setState({ isLoggedIn: true, socket });
     this.joinChat(socket);
   };
 
+  // connect to socket server and listen to messages
   joinChat = (socket) => {
     socket.connect(true);
+    socket.emit('join', this.state.author);
     // listen on event of name "message" or "command"
     socket.on("message", (msg) => {
       var messages = this.state.messages;
       messages.push({ ...msg, type: "message", time: this.getTime() });
+      // give a bit of time to display the server message
       setTimeout(() => {
         this.setState({
           messages,
@@ -84,6 +104,7 @@ class App extends Component {
   };
 
   getTime = () => {
+        // get time in format of hh:mm a/pm
         var date = new Date();
         var hours = date.getHours();
         var minutes = date.getMinutes();
@@ -96,13 +117,13 @@ class App extends Component {
       
   };
   scrollChatToBottom = () => {
+    // scroll to the bottom of the chat widget whenever new message appear
     var objDiv = document.getElementById("chat-body");
     objDiv.scrollTop = objDiv.scrollHeight * 2000;
     document.getElementById("chat-body").scrollIntoView(false);
   };
 
   chatWidget = () => {
-    if (this.state.isLoggedIn) {
       return (
         <div>
           <div className="chat-body" id="chat-body">
@@ -160,26 +181,10 @@ class App extends Component {
           </form>
         </div>
       );
-    } else {
-      return (
-        <div>
-          <div>Please enter your name</div>
-          <form>
-            <input
-              onChange={(e) => this.setState({ author: e.target.value })}
-              value={this.state.author}
-            />
-            <div>
-              <button type="submit" onClick={(e) => this.login(e)}>
-                Login
-              </button>
-            </div>
-          </form>
-        </div>
-      );
-    }
+    
   };
 
+  // switch for widget type and display its corresponding component
   commandWidget = (message) => {
     const commandType = message.command.type;
     const data = message.command.data;
@@ -193,11 +198,18 @@ class App extends Component {
         return this.rateWidget(data);
       case "complete":
         return this.completeWidget(data);
+      case "welcome":
+          return this.welcomeMessage(data);
       default:
         return <div>{commandType}</div>;
     }
   };
 
+  welcomeMessage = () =>{
+    return (
+      <div className="welcome-message">How can I help you ?</div>
+    )
+  }
   dateWidget = (data) => {
     let dates = [];
     const today = new Date(data)
@@ -206,7 +218,7 @@ class App extends Component {
       dates.push(date)
     }
     return <div>
-      <div>Please pick a date </div>
+      <div className="widget-title">Please pick a date </div>
       <div className="days-picker">
 
       {dates.map((date,key)=>{
@@ -231,7 +243,7 @@ class App extends Component {
 
   mapWidget = (data) => {
     return <div className="mapWidget"> 
-    <div>This is our location</div>
+    <div  className="widget-title">This is our location</div>
          <div style={{ height: '200px', width: '100%' }}>
     <GoogleMapReact
       bootstrapURLKeys={{ key:"AIzaSyClw9Fp6y-wpzYJGSCK6k4cX14WEFkBQp0" }}
@@ -248,7 +260,7 @@ class App extends Component {
       rates.push(i)
     }
     return <div className="ratings-widget">
-      <div>Please rate the conversation :</div>
+      <div  className="widget-title">Please rate the conversation :</div>
       <div>
 
         <ReactStars
@@ -274,7 +286,7 @@ class App extends Component {
       <div className="complete-widget">
 
       <div>
-        <div>Close the conversation ?</div>
+        <div  className="widget-title">Close the conversation ?</div>
         {data.map((el, i) => {
           return (
             <button className="actions" key={i} onClick={() => this.closeConversation(el)}>
@@ -293,26 +305,47 @@ class App extends Component {
     })
 
     if (el === "Yes") {
+      this.close()
       console.log("close conversation");
     } else {
       console.log("Keep going");
     }
   };
 
+  close = ()=>{
+    this.setState({
+      visibility:"hidden"
+
+    })
+  }
+
+  show = ()=>{
+    this.setState({
+      visibility:"visible"
+
+    })
+  }
+
   render() {
     return (
       <div className="page">
-        <div className="chat-container">
+        <Header />
+            <div className="show" onClick={this.show}>&#9993;</div>
+        <div className="chat-container"style={{"visibility":this.state.visibility}}>
           <div className="chat-header">
-            <div>type is {this.state.emitEventType}</div>
+            <div className="close-icon" onClick={this.close}>X</div>
+
+
             <div>
               <button
                 onClick={() => this.setState({ emitEventType: "message" })}
+                className={this.state.emitEventType === "message" ? "secondary active" : "secondary"}
               >
                 Message
               </button>
               <button
                 onClick={() => this.setState({ emitEventType: "command" })}
+                className={this.state.emitEventType === "command" ? "secondary active" : "secondary"}
               >
                 Command
               </button>
@@ -325,4 +358,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);
