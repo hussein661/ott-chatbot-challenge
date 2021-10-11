@@ -13,6 +13,7 @@ class App extends Component {
     socket: null,
     inputValue: "",
     messages: [{
+         id:"1",
          command:{
            type:"welcome",
            data:"welcome"
@@ -33,6 +34,9 @@ class App extends Component {
     }
   }
 
+  generateNewId = () =>{
+    return (new Date()).getTime()
+  }
 
   // emit messages to server
   sendMessage = (e) => {
@@ -42,6 +46,7 @@ class App extends Component {
     var messages = this.state.messages;
     if(this.state.emitEventType === "message"){
       messages.push({
+        id:this.generateNewId(),
         author: this.state.author,
         message: this.state.inputValue,
         type: "message",
@@ -79,7 +84,7 @@ class App extends Component {
     // listen on event of name "message" or "command"
     socket.on("message", (msg) => {
       var messages = this.state.messages;
-      messages.push({ ...msg, type: "message", time: this.getTime() });
+      messages.push({ ...msg, type: "message", time: this.getTime(),id:this.generateNewId() });
       // give a bit of time to display the server message
       setTimeout(() => {
         this.setState({
@@ -92,7 +97,7 @@ class App extends Component {
     });
     socket.on("command", (msg) => {
       var messages = this.state.messages;
-      messages.push({ ...msg, type: "command", time: this.getTime() });
+      messages.push({ ...msg, type: "command", time: this.getTime(),id:this.generateNewId() });
       setTimeout(() => {
         this.setState({
           messages,
@@ -188,16 +193,15 @@ class App extends Component {
   commandWidget = (message) => {
     const commandType = message.command.type;
     const data = message.command.data;
-    console.log(data);
     switch (commandType) {
       case "date":
-        return this.dateWidget(data);
+        return this.dateWidget(data,message.id);
       case "map":
         return this.mapWidget(data);
       case "rate":
-        return this.rateWidget(data);
+        return this.rateWidget(data,message.id);
       case "complete":
-        return this.completeWidget(data);
+        return this.completeWidget(data,message.id);
       case "welcome":
           return this.welcomeMessage(data);
       default:
@@ -210,7 +214,7 @@ class App extends Component {
       <div className="welcome-message">How can I help you ?</div>
     )
   }
-  dateWidget = (data) => {
+  dateWidget = (data,widgetId) => {
     let dates = [];
     const today = new Date(data)
     for(var i =0;i<=6;i++){
@@ -223,15 +227,20 @@ class App extends Component {
 
       {dates.map((date,key)=>{
         return <div key={key}>
-          <button className="actions" onClick={e=>this.state.socket.emit("message",{
-            author:this.state.author,
-            message:date.format("LLL")
-          })}>{date.format("dddd")}</button>
+          <button className="actions" onClick={e=>this.selectDate(date,widgetId)}>{date.format("dddd")}</button>
         </div>
       })}
       </div>
     </div>;
   };
+
+   selectDate = (date,widgetId)=>{
+    this.state.socket.emit("message",{
+      author:this.state.author,
+      message:date.format("LLL")
+    })
+    this.removeWidget(widgetId)
+  }
 
   renderMarkers(map, maps,data) {
     return new maps.Marker({
@@ -254,7 +263,7 @@ class App extends Component {
     </GoogleMapReact>
   </div></div>;
   };
-  rateWidget = (data) => {
+  rateWidget = (data,widgetId) => {
     let rates = [];
     for(var i=data[0];i<=data[1];i++){
       rates.push(i)
@@ -265,7 +274,7 @@ class App extends Component {
 
         <ReactStars
     count={rates.length}
-    onChange={this.ratingChanged}
+    onChange={rating=>this.ratingChanged(rating,widgetId)}
     size={24}
     activeColor="#ffd700"
 
@@ -274,14 +283,20 @@ class App extends Component {
     </div>;
   };
 
-   ratingChanged = (newRating) => {
+   ratingChanged = (newRating,widgetId) => {
     this.state.socket.emit("message",{
       author:this.state.author,
       message:newRating
     })
+    this.removeWidget(widgetId)
   };
+  removeWidget = (widgetId) =>{
+    var messages = this.state.messages;
+    messages = messages.filter(m=> m.id!== widgetId);
+    this.setState({messages})
+  }
 
-  completeWidget = (data) => {
+  completeWidget = (data,widgetId) => {
     return (
       <div className="complete-widget">
 
@@ -289,7 +304,7 @@ class App extends Component {
         <div  className="widget-title">Close the conversation ?</div>
         {data.map((el, i) => {
           return (
-            <button className="actions" key={i} onClick={() => this.closeConversation(el)}>
+            <button className="actions" key={i} onClick={() => this.closeConversation(el,widgetId)}>
               {el}
             </button>
           );
@@ -298,7 +313,7 @@ class App extends Component {
       </div>
     );
   };
-  closeConversation = (el) => {
+  closeConversation = (el,widgetId) => {
     this.state.socket.emit("message",{
       author: this.state.author,
       message: el,
@@ -306,10 +321,8 @@ class App extends Component {
 
     if (el === "Yes") {
       this.close()
-      console.log("close conversation");
-    } else {
-      console.log("Keep going");
     }
+    this.removeWidget(widgetId)
   };
 
   close = ()=>{

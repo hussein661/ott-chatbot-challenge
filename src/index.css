@@ -39,7 +39,7 @@ code {
 
 .page {
   width: 100%;
-  min-height: 100vh;
+  min-height: 97vh;
   text-align: center;
   font-size: 14px;
 }
@@ -262,7 +262,6 @@ button.secondary.active {
   font-fmaily: sans-serif;
 }
 body{
-  height: 100vh;
   font-family: sans-serif;
   background: linear-gradient(to right, #FF476D, #FC766B);
 }
