@@ -13,7 +13,7 @@ class Header extends Component {
               <div style={{color:"#FF476D",padding:"0 10px",fontWeight:"bold",fontSize:"24px"}}> Hi {localStorage.getItem("username")}</div>
             <ul>
 
-              <li  onClick={this.logout}><a href="#" class="nav-link" >LOGOUT</a></li>
+              <li  onClick={this.logout}><a href="#" class="nav-link" >LOGOUT Now</a></li>
             </ul>
           </div>
         );
